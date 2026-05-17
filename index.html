@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Demo Requests</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-elements">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-title">
+                <div class="logo-icon"><i class="fa-solid fa-bolt"></i></div>
+                <div>
+                    <h1>Admin Dashboard</h1>
+                    <p>NeuroLink Automations - Demo Requests</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="stats-badge">
+                    <i class="fa-solid fa-users"></i>
+                    <span id="total-count">0</span> Total Requests
+                </div>
+                <button id="refresh-btn" class="btn btn-primary">
+                    <i class="fa-solid fa-rotate-right"></i> Refresh Data
+                </button>
+            </div>
+        </header>
+
+        <div class="table-card">
+            <div class="table-toolbar">
+                <div class="search-box">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search by name, company, or email...">
+                </div>
+                <div class="filter-box">
+                    <select id="service-filter">
+                        <option value="all">All Services</option>
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Client Info</th>
+                            <th>Company</th>
+                            <th>Service Requested</th>
+                            <th>Message</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Data will be loaded here via JS -->
+                    </tbody>
+                </table>
+                <div id="loading-state" class="state-container">
+                    <div class="spinner"></div>
+                    <p>Loading database records...</p>
+                </div>
+                <div id="empty-state" class="state-container hidden">
+                    <i class="fa-solid fa-inbox"></i>
+                    <p>No records found.</p>
+                </div>
+                <div id="error-state" class="state-container hidden">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <p id="error-message">Failed to connect to the database.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for viewing full message details -->
+    <div id="view-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Request Details</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Modal content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
