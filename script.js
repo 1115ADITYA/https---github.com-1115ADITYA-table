@@ -148,10 +148,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="td-message">
                     <div class="message-preview">${escapeHTML(item.message || 'No message provided.')}</div>
                 </td>
-                <td>
-                    <button class="btn btn-sm view-btn" data-id="${item.id}">
-                        <i class="fa-regular fa-eye"></i> View Full
-                    </button>
+                <td style="white-space: nowrap;">
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-sm view-btn" data-id="${item.id}" title="View">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm edit-btn" style="background: rgba(99,102,241,0.1); color: var(--primary); border: 1px solid rgba(99,102,241,0.2);" data-id="${item.id}" title="Edit">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger delete-btn" data-id="${item.id}" title="Delete">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </div>
                 </td>
             `;
             tableBody.appendChild(tr);
@@ -166,8 +174,138 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // Add event listeners to edit buttons
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = parseInt(e.currentTarget.getAttribute('data-id'));
+                const request = requestData.find(r => r.id === id);
+                if (request) openEditModal(request);
+            });
+        });
+
+        // Add event listeners to delete buttons
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = parseInt(e.currentTarget.getAttribute('data-id'));
+                if (confirm('Are you sure you want to delete this request? This action cannot be undone.')) {
+                    deleteRequest(id);
+                }
+            });
+        });
+
         hideStates();
     }
+
+    // Delete Request
+    async function deleteRequest(id) {
+        try {
+            const response = await fetch(`/api/requests/${id}`, {
+                method: 'DELETE'
+            });
+            const result = await response.json();
+            if (result.success) {
+                // Remove from local state
+                requestData = requestData.filter(item => item.id !== id);
+                updateFilters();
+                renderTable();
+            } else {
+                alert('Failed to delete: ' + result.error);
+            }
+        } catch (error) {
+            console.error('Error deleting:', error);
+            alert('Error deleting record.');
+        }
+    }
+
+    // Edit Modal Logic
+    const editModal = document.getElementById('edit-modal');
+    const editForm = document.getElementById('edit-form');
+    const closeEditBtns = document.querySelectorAll('.close-edit-modal');
+
+    closeEditBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            editModal.classList.remove('active');
+        });
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === editModal) {
+            editModal.classList.remove('active');
+        }
+    });
+
+    function openEditModal(item) {
+        document.getElementById('edit-id').value = item.id;
+        document.getElementById('edit-full-name').value = item.full_name || '';
+        document.getElementById('edit-company-name').value = item.company_name || '';
+        document.getElementById('edit-email').value = item.email || '';
+        document.getElementById('edit-phone').value = item.phone || '';
+        document.getElementById('edit-business-type').value = item.business_type || '';
+        
+        // Select service or default
+        const serviceSelect = document.getElementById('edit-service');
+        if (item.service) {
+            const exists = Array.from(serviceSelect.options).some(opt => opt.value === item.service);
+            if (!exists) {
+                const newOpt = new Option(item.service, item.service);
+                serviceSelect.add(newOpt);
+            }
+            serviceSelect.value = item.service;
+        } else {
+            serviceSelect.value = 'chatbot';
+        }
+        
+        document.getElementById('edit-message').value = item.message || '';
+        editModal.classList.add('active');
+    }
+
+    editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const id = document.getElementById('edit-id').value;
+        const payload = {
+            full_name: document.getElementById('edit-full-name').value,
+            company_name: document.getElementById('edit-company-name').value,
+            email: document.getElementById('edit-email').value,
+            phone: document.getElementById('edit-phone').value,
+            business_type: document.getElementById('edit-business-type').value,
+            service: document.getElementById('edit-service').value,
+            message: document.getElementById('edit-message').value
+        };
+
+        const submitBtn = editForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Saving...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/api/requests/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                // Update local state
+                const index = requestData.findIndex(item => item.id == id);
+                if (index !== -1) {
+                    requestData[index] = { ...requestData[index], ...result.data };
+                }
+                editModal.classList.remove('active');
+                updateFilters();
+                renderTable();
+            } else {
+                alert('Failed to update: ' + result.error);
+            }
+        } catch (error) {
+            console.error('Error updating:', error);
+            alert('Error updating record.');
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    });
 
     // Open Modal with Details
     function openModal(item) {

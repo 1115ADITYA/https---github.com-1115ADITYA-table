@@ -3,39 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Demo Requests</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>NeuroLink Admin | Demo Requests</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="background-elements">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
-        <div class="shape shape-3"></div>
+    <div class="bg-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
     </div>
 
-    <div class="dashboard-container">
-        <header class="dashboard-header">
+    <!-- Navbar equivalent -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <i class="fa-solid fa-brain"></i>
+                NeuroLink
+            </a>
+            <div class="nav-links">
+                <a href="#" style="color:var(--text-main); font-weight:700;">Admin Panel</a>
+                <a href="#">Analytics</a>
+                <a href="#">Settings</a>
+            </div>
+            <div class="nav-actions">
+                <button id="refresh-btn" class="btn btn-primary glow-effect">
+                    <i class="fa-solid fa-rotate-right"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container section">
+        <header class="dashboard-header reveal active">
             <div class="header-title">
                 <div class="logo-icon"><i class="fa-solid fa-bolt"></i></div>
                 <div>
-                    <h1>Admin Dashboard</h1>
-                    <p>NeuroLink Automations - Demo Requests</p>
+                    <h1>Incoming <span class="text-gradient">Requests</span></h1>
+                    <p>Manage all your demo and contact requests</p>
                 </div>
             </div>
             <div class="header-actions">
                 <div class="stats-badge">
                     <i class="fa-solid fa-users"></i>
-                    <span id="total-count">0</span> Total Requests
+                    <span id="total-count">0</span> Total Leads
                 </div>
-                <button id="refresh-btn" class="btn btn-primary">
-                    <i class="fa-solid fa-rotate-right"></i> Refresh Data
-                </button>
             </div>
         </header>
 
-        <div class="table-card">
+        <div class="table-card glass-panel reveal active delay-1">
             <div class="table-toolbar">
                 <div class="search-box">
                     <i class="fa-solid fa-search"></i>
@@ -44,7 +61,6 @@
                 <div class="filter-box">
                     <select id="service-filter">
                         <option value="all">All Services</option>
-                        <!-- Options will be populated dynamically -->
                     </select>
                 </div>
             </div>
@@ -83,14 +99,75 @@
     </div>
 
     <!-- Modal for viewing full message details -->
-    <div id="view-modal" class="modal">
-        <div class="modal-content">
+    <div class="modal-overlay" id="view-modal">
+        <div class="modal-content glass-panel">
+            <button class="modal-close close-modal"><i class="fa-solid fa-xmark"></i></button>
             <div class="modal-header">
-                <h2>Request Details</h2>
-                <span class="close-modal">&times;</span>
+                <h2>Request <span class="text-gradient">Details</span></h2>
+                <p>Complete information submitted by the client</p>
             </div>
             <div class="modal-body" id="modal-body">
                 <!-- Modal content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for editing request details -->
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal-content glass-panel">
+            <button class="modal-close close-edit-modal"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h2>Edit <span class="text-gradient">Request</span></h2>
+                <p>Update client information</p>
+            </div>
+            <div class="modal-body">
+                <form id="edit-form" class="modal-form">
+                    <input type="hidden" id="edit-id">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="edit-full-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Company Name</label>
+                            <input type="text" id="edit-company-name">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="edit-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="edit-phone">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Business Type</label>
+                            <input type="text" id="edit-business-type">
+                        </div>
+                        <div class="form-group">
+                            <label>Service Requested</label>
+                            <select id="edit-service" required>
+                                <option value="chatbot">AI Chatbots</option>
+                                <option value="voice">AI Voice Agents</option>
+                                <option value="whatsapp">WhatsApp Automation</option>
+                                <option value="workflow">Workflow Automation</option>
+                                <option value="multiple">Multiple Services</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea id="edit-message" rows="3"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-primary glow-effect w-100">Save Changes</button>
+                        <button type="button" class="btn btn-secondary w-100 close-edit-modal">Cancel</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
